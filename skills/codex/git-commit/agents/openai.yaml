@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "Review staged changes and craft commit messages"
+  default_prompt: "Use $git-commit to review the staged diff, propose a concise conventional commit message, and ask before committing."

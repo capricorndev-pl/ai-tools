@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linear Issue Management"
+  short_description: "Create structured Linear work items."
+  default_prompt: "Use $linear-issue-management to create or triage a Linear item from the current context."

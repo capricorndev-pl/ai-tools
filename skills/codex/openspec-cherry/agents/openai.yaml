@@ -1,0 +1,3 @@
+display_name: OpenSpec Cherry
+short_description: Apply one selected OpenSpec task or a small explicit subset.
+default_prompt: Apply only the selected task from this OpenSpec change.
