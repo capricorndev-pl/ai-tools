@@ -27,9 +27,9 @@ This skill uses three different formats for three different purposes. Be strict 
 | Where | Format | Why |
 |---|---|---|
 | This SKILL.md (instructions for you) | Markdown | Human-readable instructions |
-| Discovery output (questions, recommendations) | XML tags | Structured model output, parses cleanly |
+| Discovery output (Phase 1 questions + recommendations) | Markdown with numbered headings | Renders cleanly for the user, paired structure is visually obvious |
 | Checkpoint (Phase 1 pause artifact) | XML tags inside a markdown file | Structured save state, machine-readable on resume |
-| Session summary (Phase 2 artifact) | XML tags inside a markdown file | Structured intermediate, downstream consumable |
+| Session summary (Phase 2 artifact) | XML tags inside a markdown file | Structured intermediate, downstream consumable by Phase 3 |
 | Final PRD (Phase 3 artifact) | Pure markdown | Deliverable for humans and tools |
 
 Never mix. No XML in the PRD. No markdown headers competing with XML structure in the summary.
@@ -54,39 +54,63 @@ Each round:
 
 1. Analyze silently in your reasoning block — the core user problem, candidate MVP features, likely user stories and flows, success criteria, constraints (timeline, resources, tech, regulatory). Do not narrate this analysis in the visible response.
 
-2. Output exactly two XML blocks, in the user's language:
+2. Output a numbered list in markdown, in the user's language. Each numbered item is a paired Question + Recommendation block — they belong together and address the same gap or ambiguity.
 
-```
-<questions>
-1. ...
-2. ...
-</questions>
+   Use this exact rendering structure (Polish labels for PL sessions, English for EN sessions):
 
-<recommendations>
-1. ...
-2. ...
-</recommendations>
-```
+   ```
+   ## Runda N — Pytania i rekomendacje
 
-3. On the first round only, suggest a response format:
+   ### 1. [Krótki tytuł obszaru — 3–6 słów]
 
-> Odpowiadaj w formacie "1. ..., 2. ..." — pytania, na które jeszcze nie znasz odpowiedzi, możesz pominąć pisząc "pomijam" lub "nie wiem".
->
-> Reply in "1. ..., 2. ..." format — for questions you cannot answer yet, write "skip" or "don't know".
+   Pytanie: [konkretne pytanie do usera]
+
+   Rekomendacja: [Twoja sugestia / domyślna odpowiedź / co byś zrobił, gdybyś musiał decydować dziś]
+
+   ---
+
+   ### 2. [Tytuł kolejnego obszaru]
+
+   Pytanie: ...
+
+   Rekomendacja: ...
+
+   ---
+
+   (...do max 6 pozycji)
+   ```
+
+   English version uses `## Round N — Questions and recommendations`, `Question:`, `Recommendation:`.
+
+3. On the first round only, after the list, add a short instruction for the user:
+
+   > Odpowiadaj w formacie "1. ..., 2. ..." — pytania, na które jeszcze nie znasz odpowiedzi, możesz pominąć pisząc "pomijam" lub "nie wiem". Możesz też powiedzieć "akceptuję rekomendację" zamiast formułować własną odpowiedź.
+   >
+   > Reply in "1. ..., 2. ..." format — for questions you cannot answer yet, write "skip" or "don't know". You can also say "accept recommendation" to take the suggested default instead of writing your own answer.
+
+### Pairing rules — critical
+
+Question N and Recommendation N must address the **same** topic. They are two angles on one gap:
+
+- Pytanie = czego nie wiem o tej decyzji
+- Rekomendacja = co bym zasugerował jako domyślną odpowiedź / w którą stronę bym się skłaniał, gdybym musiał wybrać dziś
+
+Do not produce a question about user roles paired with a recommendation about deployment. If you cannot write a meaningful recommendation for a given question, that is a signal the question is too vague — sharpen it or drop it. Every numbered item is a complete mini-decision package.
 
 ### Question rules
 
 - Maximum 6 per round. Hard ceiling. If you have more candidates, drop the least blocking ones — they can return in later rounds.
-- Order from most blocking to least blocking. No PRD progress is possible without the top one. The bottom one is nice-to-have.
+- Order from most blocking to least blocking. The top item is the one without which no PRD progress is possible. The bottom one is nice-to-have.
 - Re-read the full conversation context before each round. Never ask things already answered.
 - One question per item. Split compound questions ("What's the timeline and budget?" → two items).
 - Specific over generic. "Is the primary user the practitioner or the end client?" beats "Who are your users?".
 
 ### Recommendation rules
 
-- Address ambiguities, gaps, or risks surfaced by your analysis.
-- 3–7 per round is typical. No hard cap.
-- Actionable, not vague. "Cap MVP scope at booking + practitioner profiles, defer wiki to v2" beats "Consider scope".
+- Each recommendation answers its own question — your best guess at the right default given everything you know about the project so far.
+- Actionable and concrete. "Cap MVP scope at booking + practitioner profiles, defer wiki to v2" beats "Consider scope carefully".
+- It is fine for a recommendation to be tentative ("Suggest X, but only if Y is true") — but never empty platitudes.
+- If a question is genuinely open and you have no opinion, say so explicitly: "Brak rekomendacji — decyzja zależy od czynnika X, którego nie znam." That is honest and useful.
 
 ### Loop continuation
 
@@ -140,27 +164,28 @@ date: YYYY-MM-DD
 </project_description>
 
 <qa_history>
-[Numbered Q&A pairs from all completed rounds. Format:
+[Numbered Q+R+A triplets from all completed rounds. Format:
 
 Round 1:
-Q1: [question text]
-A1: [user's answer, including "skip" / "don't know" if applicable]
-Q2: ...
-A2: ...
+1. [Topic title]
+   Q: [question text]
+   R: [recommendation text]
+   A: [user's answer — verbatim, including "skip" / "akceptuję rekomendację" / etc.]
+
+2. [Topic title]
+   Q: ...
+   R: ...
+   A: ...
 
 Round 2:
 ...
 
-Be faithful — do not paraphrase the user's answers.]
+Be faithful — do not paraphrase the user's answers. Keep the original Q and R so resuming Claude sees full context.]
 </qa_history>
 
 <open_threads>
 [Numbered list of topics still needing clarification. These become the seeds for the next round when the session resumes. Pulled from your latest analysis of remaining gaps.]
 </open_threads>
-
-<latest_recommendations>
-[The recommendations from your most recent round. Useful context for resuming.]
-</latest_recommendations>
 </prd_checkpoint>
 
 ---
