@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR Author"
+  short_description: "Draft architecture decision records"
+  default_prompt: "Use $adr-author to draft an ADR that captures one technical decision, the considered options, and the concrete consequences."
